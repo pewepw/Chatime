@@ -49,11 +49,10 @@
         android:layout_width="wrap_content"
         android:layout_height="32dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginStart="24dp"
         android:background="@android:color/transparent"
         android:onClick="loginButtonNavClicked"
         android:text="Login"
-        android:textAlignment="viewStart"
+        android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
