@@ -1,9 +1,10 @@
-package com.devconcept.www.chatime
+package com.devconcept.www.chatime.Controller
 
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import com.devconcept.www.chatime.R
 
 class LoginActivity : AppCompatActivity() {
 
