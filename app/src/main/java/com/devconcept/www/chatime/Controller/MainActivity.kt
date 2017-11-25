@@ -17,15 +17,23 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import com.devconcept.www.chatime.Model.Channel
 import com.devconcept.www.chatime.R
 import com.devconcept.www.chatime.Services.AuthService
+import com.devconcept.www.chatime.Services.MessageService
 import com.devconcept.www.chatime.Services.UserDataService
 import com.devconcept.www.chatime.Utilities.BROADCAST_USER_DATA_CHANGE
+import com.devconcept.www.chatime.Utilities.SOCKET_URL
+import io.socket.client.IO
+import io.socket.client.Socket
+import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    val socket = IO.socket(SOCKET_URL)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,14 +45,24 @@ class MainActivity : AppCompatActivity() {
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(BROADCAST_USER_DATA_CHANGE))
-
-        hideKeyboard()
+        socket.connect()
+        socket.on("channelCreated", )
 
         usernameNavHeader.findViewById<TextView>(R.id.usernameNavHeader)
         userEmailNavHeader.findViewById<TextView>(R.id.userEmailNavHeader)
         loginButtonNavHeader.findViewById<Button>(R.id.loginButtonNavHeader)
         userImageNavHeader.findViewById<ImageView>(R.id.userImageNavHeader)
+    }
+
+    override fun onResume() {
+        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(BROADCAST_USER_DATA_CHANGE))
+        super.onResume()
+    }
+
+    override fun onDestroy() {
+        socket.disconnect()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(userDataChangeReceiver)
+        super.onDestroy()
     }
 
     private val userDataChangeReceiver = object: BroadcastReceiver() {
@@ -96,18 +114,29 @@ class MainActivity : AppCompatActivity() {
                         val channelName = nameTextField.text.toString()
                         val channelDesc = descTextField.text.toString()
 
-                        hideKeyboard()
+                        socket.emit("newChannel", channelName, channelDesc)
+
                     }
                     .setNegativeButton("Cancel") { dialogInterface, i ->
 
-                        hideKeyboard()
                     }
                     .show()
         }
     }
 
-    fun sendMessageButtonClicked(view: View) {
+    private val onNewChannel = Emitter.Listener { args ->
+        runOnUiThread {
+            val channelName = args[0] as String
+            val channelDescription = args[1] as String
+            val channelId = args[2] as String
 
+            val newChannel = Channel(channelName, channelDescription, channelId)
+            MessageService.channels.add(newChannel)
+        }
+    }
+
+    fun sendMessageButtonClicked(view: View) {
+        hideKeyboard()
     }
 
     fun hideKeyboard() {
