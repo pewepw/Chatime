@@ -2,6 +2,7 @@ package com.devconcept.www.chatime.Adapter
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,9 @@ import android.widget.TextView
 import com.devconcept.www.chatime.Model.Message
 import com.devconcept.www.chatime.R
 import com.devconcept.www.chatime.Services.UserDataService
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by harry on 27/11/2017.
@@ -39,9 +43,26 @@ class MessageAdapter(val context: Context, val messages: ArrayList<Message>): Re
             userImage?.setImageResource(resourceId)
             userImage?.setBackgroundColor(UserDataService.returnAvatarColor(messages.userAvatarColor))
             username?.text = messages.username
-            timeStamp?.text = messages.timeStamp
+            timeStamp?.text = returnDateString(messages.timeStamp)
             messageBody?.text = messages.message
         }
+    }
+
+    fun returnDateString(isoString: String) : String {
+        //2017-11-26T14:58:39.341Z
+        val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        isoFormatter.timeZone = TimeZone.getTimeZone("UTC")
+
+        var convertedDate = Date()
+
+        try {
+            convertedDate = isoFormatter.parse(isoString)
+        } catch (e: ParseException) {
+            Log.d("PARSE", "Cannot parse date")
+        }
+
+        val outDateString = SimpleDateFormat("E, h:mm a", Locale.getDefault())
+        return outDateString.format(convertedDate)
     }
 
 }

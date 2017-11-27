@@ -60,6 +60,8 @@ class MainActivity : AppCompatActivity() {
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(BROADCAST_USER_DATA_CHANGE))
+
         socket.connect()
         socket.on("channelCreated", onNewChannel)
         socket.on("messageCreated", onNewMessage)
@@ -79,11 +81,6 @@ class MainActivity : AppCompatActivity() {
         if (App.prefs.isLoggedIn) {
             AuthService.findUserByEmail(this) {}
         }
-    }
-
-    override fun onResume() {
-        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(BROADCAST_USER_DATA_CHANGE))
-        super.onResume()
     }
 
     override fun onDestroy() {
@@ -153,6 +150,7 @@ class MainActivity : AppCompatActivity() {
             userImageNavHeader.setImageResource(R.drawable.profiledefault)
             userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
             loginButtonNavHeader.text = "LOGIN"
+            mainChannelName.text = "Please log in"
         } else {
             val loginIntent = Intent(this, LoginActivity::class.java)
             startActivity(loginIntent)
@@ -222,7 +220,7 @@ class MainActivity : AppCompatActivity() {
             val channelId = selectedChannel!!.id
             socket.emit("newMessage", messageTextView.text.toString(), userId, channelId, UserDataService.name, UserDataService.avatarName, UserDataService.avatarColor)
             messageTextView.text.clear()
-            hideKeyboard()
+            //hideKeyboard()
         }
 
     }
